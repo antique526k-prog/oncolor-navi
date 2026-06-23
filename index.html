@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>オンカラー逆引き | Hair Pocket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1410;
+    --paper:#F5EFE6;
+    --paper-dim:#EAE2D3;
+    --amber:#C97B4A;
+    --amber-deep:#A85F33;
+    --ash:#7C8B7A;
+    --alert:#E8483C;
+    --line: rgba(26,20,16,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans JP', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .ruler-watermark{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    opacity:0.045;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:40px 0;
+  }
+  .ruler-watermark div{ height:1px; background:var(--ink); width:100%; }
+  .wrap{
+    position:relative;
+    z-index:1;
+    max-width:880px;
+    margin:0 auto;
+    padding:28px 20px 80px;
+  }
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:14px;
+    margin-bottom:6px;
+  }
+  .brand{
+    font-family:'Shippori Mincho', serif;
+    font-weight:700;
+    font-size:22px;
+    letter-spacing:0.04em;
+  }
+  .brand small{
+    display:block;
+    font-family:'Noto Sans JP',sans-serif;
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.08em;
+    color:var(--amber-deep);
+    margin-top:2px;
+  }
+  .back-link{
+    font-size:12px;
+    color:var(--ink);
+    opacity:0.55;
+    text-decoration:none;
+    border-bottom:1px solid currentColor;
+  }
+  .intro{
+    margin:18px 0 30px;
+  }
+  .intro h1{
+    font-family:'Shippori Mincho', serif;
+    font-size:26px;
+    font-weight:700;
+    margin:0 0 8px;
+    letter-spacing:0.02em;
+  }
+  .intro p{
+    font-size:13.5px;
+    line-height:1.8;
+    color:var(--ink);
+    opacity:0.78;
+    margin:0;
+    max-width:560px;
+  }
+  .premise-tags{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+  .premise-tag{
+    font-size:11px;
+    letter-spacing:0.05em;
+    padding:5px 10px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    color:var(--amber-deep);
+    background:rgba(201,123,74,0.07);
+  }
+
+  /* ---- Upload / selection section ---- */
+  .panel{
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:rgba(255,255,255,0.35);
+    padding:22px;
+    margin-bottom:22px;
+  }
+  .panel-label{
+    font-size:11px;
+    letter-spacing:0.1em;
+    color:var(--amber-deep);
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  .upload-zone{
+    border:1.5px dashed var(--line);
+    border-radius:4px;
+    padding:28px 16px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+    position:relative;
+    overflow:hidden;
+    min-height:120px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .upload-zone:hover{ border-color:var(--amber); background:rgba(201,123,74,0.04); }
+  .upload-zone .placeholder{
+    font-size:13px;
+    color:var(--ink);
+    opacity:0.5;
+  }
+  .upload-zone .placeholder strong{
+    display:block;
+    font-size:14px;
+    color:var(--ink);
+    opacity:0.85;
+    margin-bottom:4px;
+    font-weight:700;
+  }
+  input[type="file"]{display:none;}
+
+  .crop-stage{ display:none; }
+  .crop-stage.active{ display:block; }
+  .crop-frame{
+    position:relative;
+    width:100%;
+    max-height:420px;
+    overflow:hidden;
+    border-radius:4px;
+    cursor:crosshair;
+    background:#000;
+  }
+  .crop-frame img{
+    width:100%;
+    height:420px;
+    object-fit:cover;
+    display:block;
+    pointer-events:none;
+  }
+  .crop-box{
+    position:absolute;
+    border:2px solid var(--alert);
+    background:rgba(232,72,60,0.18);
+    display:none;
+  }
+  .crop-box.confirmed{
+    border-style:dashed;
+    background:rgba(232,72,60,0.06);
+  }
+  .crop-hint{
+    font-size:12px;
+    color:var(--ink);
+    opacity:0.55;
+    margin-top:10px;
+    text-align:center;
+  }
+  .crop-hint.confirmed{ color:var(--amber-deep); opacity:0.9; }
+
+  .readout-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-top:16px;
+    flex-wrap:wrap;
+  }
+  .swatch-chip{
+    width:48px; height:48px;
+    border-radius:4px;
+    border:1px solid var(--line);
+    flex-shrink:0;
+  }
+  .swatch-text{ font-size:13px; line-height:1.6; }
+  .swatch-text strong{ font-family:'Shippori Mincho',serif; font-size:15px; }
+  .sample-warning{
+    width:100%;
+    font-size:12px;
+    color:var(--alert);
+    margin-top:8px;
+    line-height:1.6;
+  }
+  .reselect-btn{
+    font-size:12px;
+    color:var(--ink);
+    opacity:0.6;
+    background:none;
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:5px 10px;
+    cursor:pointer;
+  }
+  .reselect-btn:hover{ opacity:1; border-color:var(--ink); }
+
+  .generate-btn{
+    display:block;
+    width:100%;
+    margin-top:20px;
+    padding:15px;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    border-radius:4px;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:0.05em;
+    font-family:'Noto Sans JP',sans-serif;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .generate-btn:disabled{
+    background:var(--paper-dim);
+    color:rgba(26,20,16,0.35);
+    cursor:not-allowed;
+  }
+  .generate-btn:not(:disabled):hover{ background:var(--amber-deep); }
+
+  /* ---- Ruler results ---- */
+  .ruler-results{ display:none; margin-top:8px; }
+  .ruler-results.show{ display:block; }
+  .ruler-results-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:4px;
+    padding-bottom:10px;
+    border-bottom:2px solid var(--ink);
+  }
+  .ruler-results-head h2{
+    font-family:'Shippori Mincho',serif;
+    font-size:18px;
+    font-weight:700;
+    margin:0;
+  }
+  .goal-chip-mini{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12px;
+    opacity:0.7;
+  }
+  .goal-chip-mini .dot{
+    width:16px; height:16px;
+    border-radius:50%;
+    border:1px solid var(--line);
+  }
+
+  .rung{
+    display:grid;
+    grid-template-columns:64px 1fr;
+    border-bottom:1px solid var(--line);
+    padding:18px 0;
+    align-items:center;
+    gap:18px;
+  }
+  .rung:first-of-type{ padding-top:22px; }
+  .rung-level{
+    font-family:'Shippori Mincho',serif;
+    text-align:center;
+  }
+  .rung-level .num{
+    font-size:30px;
+    font-weight:700;
+    line-height:1;
+    display:block;
+  }
+  .rung-level .lv-label{
+    font-size:10px;
+    opacity:0.5;
+    letter-spacing:0.08em;
+    margin-top:2px;
+    display:block;
+  }
+  .rung-body{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .swatch-pair-wrap{ flex-shrink:0; }
+  .swatch-pair{
+    display:flex;
+    flex-direction:row;
+    gap:4px;
+  }
+  .swatch-pair-labels{
+    display:flex;
+    gap:4px;
+    margin-bottom:2px;
+  }
+  .swatch-pair-labels span{
+    font-size:8.5px;
+    opacity:0.45;
+    width:30px;
+    text-align:center;
+  }
+  .rung-swatch{
+    width:30px; height:30px;
+    border-radius:3px;
+    border:1px solid var(--line);
+    flex-shrink:0;
+  }
+  .rung-swatch.result{
+    border-color:var(--amber-deep);
+    box-shadow:0 0 0 1px rgba(168,95,51,0.25);
+  }
+  .rung-recipe{ flex:1; min-width:200px; }
+  .rung-recipe .recipe-name{
+    font-size:14.5px;
+    font-weight:700;
+    line-height:1.4;
+  }
+  .rung-recipe .recipe-sub{
+    font-size:11.5px;
+    opacity:0.6;
+    margin-top:3px;
+    line-height:1.5;
+  }
+  .sink-note{
+    font-size:11px;
+    color:var(--amber-deep);
+    margin-top:6px;
+    line-height:1.6;
+    background:rgba(201,123,74,0.08);
+    border-radius:3px;
+    padding:5px 8px;
+  }
+  .brand-tag{
+    display:inline-block;
+    font-size:9.5px;
+    letter-spacing:0.03em;
+    padding:1px 6px;
+    border-radius:2px;
+    background:var(--paper-dim);
+    color:var(--ink);
+    opacity:0.7;
+    margin-left:6px;
+    vertical-align:middle;
+  }
+  .brand-tag.cross{
+    background:rgba(232,72,60,0.1);
+    color:var(--alert);
+    opacity:1;
+  }
+  .match-bar{
+    width:64px;
+    flex-shrink:0;
+    text-align:right;
+  }
+  .match-bar .match-label{
+    font-size:10px;
+    opacity:0.45;
+    letter-spacing:0.04em;
+  }
+  .match-bar .match-value{
+    font-size:13px;
+    font-weight:700;
+    color:var(--amber-deep);
+  }
+  .match-bar .match-value.good{ color:var(--ash); }
+  .match-bar .match-value.mid{ color:var(--amber-deep); }
+  .match-bar .match-value.low{ color:var(--alert); opacity:0.85; }
+  .no-match{
+    font-size:12.5px;
+    opacity:0.5;
+    font-style:italic;
+  }
+  .ruler-loading{
+    font-size:13px;
+    opacity:0.55;
+    padding:32px 0;
+    text-align:center;
+  }
+
+  .footnote{
+    font-size:11.5px;
+    opacity:0.55;
+    line-height:1.8;
+    margin-top:24px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+  }
+
+  @media (max-width:560px){
+    .rung{ grid-template-columns:48px 1fr; }
+    .rung-level .num{ font-size:24px; }
+    .crop-frame img, .crop-frame{ height:300px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ruler-watermark">
+  <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+</div>
+
+<div class="wrap">
+
+  <header>
+    <div class="brand">オンカラー逆引き<small>HAIR POCKET COLOR TOOLS</small></div>
+    <div></div>
+  </header>
+
+  <div class="intro">
+    <h1>レベル15〜18から、その目的色へ。</h1>
+    <p>ブリーチ済みの土台は、レベルごとに発色の入り方が違います。写真から目的色を取り込めば、レベル15〜18それぞれが今その色に到達するための処方を1案ずつ、物差しのように並べて表示します。</p>
+    <div class="premise-tags">
+      <span class="premise-tag">前提：ブリーチ済み毛</span>
+      <span class="premise-tag">クオルシア × フィヨーレ BLカラー ミックス可</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-label">目的色の写真</div>
+    <div class="upload-zone" id="uploadZone">
+      <div class="placeholder" id="uploadPlaceholder">
+        <strong>タップして写真を選択</strong>
+        作品写真・チャート・参考画像など
+      </div>
+    </div>
+    <input type="file" id="fileGoal" accept="image/*">
+
+    <div class="crop-stage" id="cropStage">
+      <div class="crop-frame" id="cropFrame">
+        <img id="cropImg" src="" alt="">
+        <div class="crop-box" id="cropBox"></div>
+      </div>
+      <div class="crop-hint" id="cropHint">写真の中の「目的色」部分を指でなぞって囲んでください</div>
+      <div class="readout-row" id="readoutRow" style="display:none;">
+        <div class="swatch-chip" id="readoutChip"></div>
+        <div class="swatch-text" id="readoutText"></div>
+        <button class="reselect-btn" id="reselectBtn" style="display:none;" onclick="resetSelection()">囲み直す</button>
+      </div>
+    </div>
+    <button class="generate-btn" id="generateBtn" disabled onclick="generateRuler()">写真を選択してください</button>
+  </div>
+
+  <div class="ruler-results" id="rulerResults">
+    <div class="ruler-results-head">
+      <h2>レベル別 到達処方</h2>
+      <div class="goal-chip-mini">
+        <div class="dot" id="goalDotMini"></div>
+        <span id="goalHexMini"></span>
+      </div>
+    </div>
+    <div id="rungContainer"></div>
+    <div class="footnote">
+      各レベルの処方は「希望色(目的トーンの製品。色相が近い製品が目的レベルの上下にある場合は2製品を挟み込んでレベルを合わせます)→補色(必要な場合のみ、3-6トーン帯から)→オレンジ味(BL O10、まれに微調整用)」の順で組み立てています。配合比は希望色:補色:オレンジ=10:0-3:0-1で、希望色全体が常に主成分です。補色は、目的色相が地肌の黄みから離れているほど必要性が上がり、土台が17-18レベルで目的が大きく暗い場合は地肌の影響が小さいため基本的に不要です。「仕上がり」スウォッチは、そのレベルの地肌(黄み・オレンジ味)に処方を重ねた結果を実測ベースで予測したものです。表示色はディスプレイ環境により実物と差が出ます。配合はHEX値からの色合わせ推定であり、薬剤の化学的な相性や安全性を保証するものではありません。実施前に必ずテスト・薬剤の取扱説明書をご確認ください。「メーカー違い」タグの配合は異なる製造元の薬剤を混ぜる前提の色合わせ案である点にご留意ください。
+    </div>
+  </div>
+
+</div>
+
+<canvas id="hiddenCanvas" style="display:none;"></canvas>
+
+<script>
+// =====================================================================================
+// Color data — extracted from the salon's own color chart photos (same source as カラーナビ).
+// =====================================================================================
+const qualuciaPalette = [
+  { name: 'ハイライトナー', nameEn: 'High Lightner', level: 14, hex: '#dfdecb' },
+  { name: 'シルバーアッシュ', nameEn: 'Silver Ash', level: 14, hex: '#7c7194' },
+  { name: 'ラベンダー', nameEn: 'Lavender', level: 14, hex: '#765179' },
+  { name: 'ベージュ', nameEn: 'Beige', level: 14, hex: '#a4918c' },
+  { name: 'グレー', nameEn: 'Gray', level: 13, hex: '#746e6e' },
+  { name: 'シルバー', nameEn: 'Silver', level: 13, hex: '#8c818f' },
+  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 13, hex: '#847265' },
+  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 13, hex: '#a7877f' },
+  { name: 'ベージュ', nameEn: 'Beige', level: 13, hex: '#a08071' },
+  { name: 'グレー', nameEn: 'Gray', level: 11, hex: '#57514e' },
+  { name: 'シルバー', nameEn: 'Silver', level: 11, hex: '#716770' },
+  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 11, hex: '#635346' },
+  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 11, hex: '#90716a' },
+  { name: 'ベージュ', nameEn: 'Beige', level: 11, hex: '#8f7166' },
+  { name: 'グレー', nameEn: 'Gray', level: 9, hex: '#46423f' },
+  { name: 'シルバー', nameEn: 'Silver', level: 9, hex: '#60575c' },
+  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 9, hex: '#463b32' },
+  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 9, hex: '#82625a' },
+  { name: 'ベージュ', nameEn: 'Beige', level: 9, hex: '#735648' },
+  { name: 'ベージュ', nameEn: 'Beige', level: 8, hex: '#523d34' },
+  { name: 'グレー', nameEn: 'Gray', level: 7, hex: '#47433f' },
+  { name: 'シルバー', nameEn: 'Silver', level: 7, hex: '#564d52' },
+  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 7, hex: '#342b27' },
+  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 7, hex: '#5c3f36' },
+  { name: 'ベージュ', nameEn: 'Beige', level: 7, hex: '#37261f' },
+  { name: 'グレー', nameEn: 'Gray', level: 5, hex: '#363430' },
+  { name: 'シルバー', nameEn: 'Silver', level: 5, hex: '#352e2f' },
+  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 5, hex: '#28221e' },
+  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 5, hex: '#412c27' },
+  { name: 'ベージュ', nameEn: 'Beige', level: 5, hex: '#291d18' },
+  { name: 'グリーン', nameEn: 'Green', level: 6, hex: '#2f4a3b' },
+  { name: 'コーラルピンク', nameEn: 'Coral Pink', level: 10, hex: '#79474c' },
+  { name: 'イエロー', nameEn: 'Yellow', level: 11, hex: '#e3b45a' },
+  { name: 'アクアブルー', nameEn: 'Aqua Blue', level: 7, hex: '#446073' },
+  { name: 'コーラルピンク', nameEn: 'Coral Pink', level: 6, hex: '#5f3a3a' },
+  { name: 'オレンジ', nameEn: 'Orange', level: 10, hex: '#522c23' },
+  { name: 'ウルトラバイオレット', nameEn: 'Ultra Violet', level: 6, hex: '#443858' },
+  { name: 'カーディナルレッド', nameEn: 'Cardinal Red', level: 7, hex: '#592b2b' },
+  { name: 'ミルキーホワイト', nameEn: 'Milky White', level: 10, hex: '#ddd5ca' },
+  { name: 'ディープバイオレット', nameEn: 'Deep Violet', level: 5, hex: '#2c2130' },
+  { name: 'レッド', nameEn: 'Red', level: 7, hex: '#482731' },
+  { name: 'クリア', nameEn: 'Clear', level: 0, hex: '#dadbcd' },
+  { name: 'ネイビーブルー', nameEn: 'Navy Blue', level: 5, hex: '#1f2130' },
+  { name: 'ピンク', nameEn: 'Pink', level: 6, hex: '#50272b' },
+  { name: 'グレージュ', nameEn: 'Greige', level: 7, hex: '#3c4044' },
+  { name: 'ネイビーブルー', nameEn: 'Navy Blue', level: 3, hex: '#1a1c27' },
+  { name: 'ピンクパール', nameEn: 'Pink Pearl', level: 6, hex: '#5d3f47' },
+  { name: 'ブラウンブースター', nameEn: 'Brown Booster', level: 3, hex: '#221d18' },
+  { name: 'ディープパープル', nameEn: 'Deep Purple', level: 5, hex: '#1f1419' },
+  { name: 'ロイヤルパープル', nameEn: 'Royal Purple', level: 3, hex: '#302235' },
+  { name: 'ブラックブースター', nameEn: 'Black Booster', level: 1, hex: '#14120f' }
+];
+
+const blColorPalette = [
+  { name: 'ライトナー', nameEn: '', level: 12, hex: '#cccbc3' },
+  { name: '12MT', nameEn: '', level: 12, hex: '#b6b6b4' },
+  { name: '12GN', nameEn: '', level: 12, hex: '#cec7c1' },
+  { name: '12GA', nameEn: '', level: 12, hex: '#c8cac8' },
+  { name: '12GP', nameEn: '', level: 12, hex: '#bbaaa2' },
+  { name: '12GB', nameEn: '', level: 12, hex: '#d4b9a3' },
+  { name: '12GNB', nameEn: '', level: 12, hex: '#bdaf94' },
+  { name: '12GY', nameEn: '', level: 12, hex: '#e0d396' },
+  { name: '10NN', nameEn: '', level: 10, hex: '#c8c2b6' },
+  { name: '10MT', nameEn: '', level: 10, hex: '#ababa9' },
+  { name: '10GN', nameEn: '', level: 10, hex: '#b1ab94' },
+  { name: '10GA', nameEn: '', level: 10, hex: '#b8b9b8' },
+  { name: '10GP', nameEn: '', level: 10, hex: '#af9c95' },
+  { name: '10GB', nameEn: '', level: 10, hex: '#cbad97' },
+  { name: '10GNB', nameEn: '', level: 10, hex: '#d3bd92' },
+  { name: '10GY', nameEn: '', level: 10, hex: '#d7c78c' },
+  { name: '8NN', nameEn: '', level: 8, hex: '#b5af97' },
+  { name: '8MT', nameEn: '', level: 8, hex: '#8d8e8c' },
+  { name: '8GN', nameEn: '', level: 8, hex: '#7b7b69' },
+  { name: '8GA', nameEn: '', level: 8, hex: '#858589' },
+  { name: '8GP', nameEn: '', level: 8, hex: '#a3897e' },
+  { name: '8GB', nameEn: '', level: 8, hex: '#836551' },
+  { name: '8GNB', nameEn: '', level: 8, hex: '#907a5b' },
+  { name: '8GY', nameEn: '', level: 8, hex: '#9d8e66' },
+  { name: '7NN', nameEn: '', level: 7, hex: '#9a9880' },
+  { name: '7MT', nameEn: '', level: 7, hex: '#727070' },
+  { name: '7GN', nameEn: '', level: 7, hex: '#6a6b57' },
+  { name: '7GA', nameEn: '', level: 7, hex: '#63646d' },
+  { name: '7GP', nameEn: '', level: 7, hex: '#7c635f' },
+  { name: '7GB', nameEn: '', level: 7, hex: '#4d3830' },
+  { name: '7GNB', nameEn: '', level: 7, hex: '#675340' },
+  { name: '7GY', nameEn: '', level: 7, hex: '#817452' },
+  { name: '6NN', nameEn: '', level: 6, hex: '#807a62' },
+  { name: '6MT', nameEn: '', level: 6, hex: '#4d4e4d' },
+  { name: '6GN', nameEn: '', level: 6, hex: '#514f41' },
+  { name: '6GA', nameEn: '', level: 6, hex: '#444750' },
+  { name: '6GP', nameEn: '', level: 6, hex: '#463432' },
+  { name: '6GB', nameEn: '', level: 6, hex: '#35261f' },
+  { name: '6GNB', nameEn: '', level: 6, hex: '#493a2c' },
+  { name: '6GY', nameEn: '', level: 6, hex: '#5a4e36' },
+  { name: '5NN', nameEn: '', level: 5, hex: '#504b3d' },
+  { name: '5MT', nameEn: '', level: 5, hex: '#1f1e1e' },
+  { name: '5GN', nameEn: '', level: 5, hex: '#2e2e28' },
+  { name: '5GA', nameEn: '', level: 5, hex: '#2e3139' },
+  { name: '5GP', nameEn: '', level: 5, hex: '#301f1f' },
+  { name: '5GB', nameEn: '', level: 5, hex: '#231917' },
+  { name: '5GNB', nameEn: '', level: 5, hex: '#332920' },
+  { name: '5GY', nameEn: '', level: 5, hex: '#3e3224' },
+  { name: '4NN', nameEn: '', level: 4, hex: '#403e32' },
+  { name: '4MT', nameEn: '', level: 4, hex: '#141413' },
+  { name: '4GN', nameEn: '', level: 4, hex: '#232721' },
+  { name: '4GA', nameEn: '', level: 4, hex: '#22252e' },
+  { name: '4GP', nameEn: '', level: 4, hex: '#281f1d' },
+  { name: '4GB', nameEn: '', level: 4, hex: '#170e0a' },
+  { name: '4GNB', nameEn: '', level: 4, hex: '#241d14' },
+  { name: '4GY', nameEn: '', level: 4, hex: '#2f281b' },
+  { name: '9NN', nameEn: '', level: 9, hex: '#c3beac' },
+  { name: '3NN', nameEn: '', level: 3, hex: '#1d1e1d' },
+  { name: '3MT', nameEn: '', level: 3, hex: '#121311' },
+  { name: '2NN', nameEn: '', level: 2, hex: '#0c1010' },
+  { name: '2GNB', nameEn: '', level: 2, hex: '#1d180f' },
+  { name: '10YM', nameEn: '', level: 10, hex: '#6a9273' },
+  { name: '10MB', nameEn: '', level: 10, hex: '#b0c8ca' },
+  { name: '10B', nameEn: '', level: 10, hex: '#485773' },
+  { name: '10BV', nameEn: '', level: 10, hex: '#46475e' },
+  { name: '10V', nameEn: '', level: 10, hex: '#5b5860' },
+  { name: '10RV', nameEn: '', level: 10, hex: '#8f4a6e' },
+  { name: '10P', nameEn: '', level: 10, hex: '#92414b' },
+  { name: '10O', nameEn: '', level: 10, hex: '#c55b40' },
+  { name: '10C', nameEn: '', level: 10, hex: '#a56357' },
+  { name: '8YM', nameEn: '', level: 8, hex: '#485f4a' },
+  { name: '8MB', nameEn: '', level: 8, hex: '#88a2a6' },
+  { name: '8B', nameEn: '', level: 8, hex: '#364056' },
+  { name: '8BV', nameEn: '', level: 8, hex: '#3c3f53' },
+  { name: '8V', nameEn: '', level: 8, hex: '#413b47' },
+  { name: '8RV', nameEn: '', level: 8, hex: '#6f2f51' },
+  { name: '8P', nameEn: '', level: 8, hex: '#752c39' },
+  { name: '8C', nameEn: '', level: 8, hex: '#935140' },
+  { name: '7R', nameEn: '', level: 7, hex: '#632534' },
+  { name: '7O', nameEn: '', level: 7, hex: '#af4e39' },
+  { name: '6YM', nameEn: '', level: 6, hex: '#425744' },
+  { name: '6G', nameEn: '', level: 6, hex: '#3b8260' },
+  { name: '6MB', nameEn: '', level: 6, hex: '#254a4c' },
+  { name: '6B', nameEn: '', level: 6, hex: '#182547' },
+  { name: '6BV', nameEn: '', level: 6, hex: '#3b3957' },
+  { name: '6V', nameEn: '', level: 6, hex: '#2a2754' },
+  { name: '6RV', nameEn: '', level: 6, hex: '#44192c' },
+  { name: '4V', nameEn: '', level: 4, hex: '#232148' },
+  { name: '10Y', nameEn: '', level: 10, hex: '#e5c255' }
+];
+
+const colorLines = {
+  qualucia: { label: 'クオルシア', palette: qualuciaPalette },
+  bl: { label: 'フィヨーレ BLカラー', palette: blColorPalette }
+};
+// Always mix across both brands now — per salon feedback, the single-brand toggle wasn't
+// useful; ミックス is the default working assumption for on-color recipes.
+const activeColorLine = 'cross';
+
+// =====================================================================================
+// Color math (shared with カラーナビ)
+// =====================================================================================
+function hexToRgbArr(hex){
+  const clean = hex.replace('#','');
+  return [
+    parseInt(clean.substring(0,2),16),
+    parseInt(clean.substring(2,4),16),
+    parseInt(clean.substring(4,6),16)
+  ];
+}
+
+function rgbToHsl(r,g,b){
+  r/=255; g/=255; b/=255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b);
+  let h=0, s=0;
+  const l=(max+min)/2;
+  const d = max-min;
+  if(d !== 0){
+    s = d / (1 - Math.abs(2*l-1));
+    switch(max){
+      case r: h = ((g-b)/d) % 6; break;
+      case g: h = (b-r)/d + 2; break;
+      case b: h = (r-g)/d + 4; break;
+    }
+    h *= 60;
+    if(h<0) h+=360;
+  }
+  return {h, s, l};
+}
+
+function blendHex(hexA, hexB, ratioA, ratioB){
+  const [ra,ga,ba] = hexToRgbArr(hexA);
+  const [rb,gb,bb] = hexToRgbArr(hexB);
+  const total = ratioA + ratioB;
+  const r = Math.round((ra*ratioA + rb*ratioB) / total);
+  const g = Math.round((ga*ratioA + gb*ratioB) / total);
+  const b = Math.round((ba*ratioA + bb*ratioB) / total);
+  return '#' + [r,g,b].map(v => Math.max(0,Math.min(255,v)).toString(16).padStart(2,'0')).join('');
+}
+
+// --- Subtractive (CMY) mixing model (same model as カラーナビ) -----------------------
+// A deposited tint doesn't sit on top of bleached hair in isolation — it layers over whatever
+// yellow/orange the base level still carries. Modeling this as CMY absorption (rather than
+// blending hue in HSL) captures both that the underlying warmth muddies a cool tint's clarity,
+// and that the mixed result reads darker than the tint alone, matching what actually happens
+// on the head.
+function rgbToCmy(r, g, b){
+  return { c: 1 - r/255, m: 1 - g/255, y: 1 - b/255 };
+}
+function cmyToHex(c, m, y){
+  const clamp = v => Math.max(0, Math.min(255, Math.round((1-v)*255)));
+  return '#' + [clamp(c), clamp(m), clamp(y)].map(v => v.toString(16).padStart(2,'0')).join('');
+}
+function subtractiveMixHex(hexA, hexB, weightA, weightB){
+  const [ra,ga,ba] = hexToRgbArr(hexA);
+  const [rb,gb,bb] = hexToRgbArr(hexB);
+  const cmyA = rgbToCmy(ra,ga,ba);
+  const cmyB = rgbToCmy(rb,gb,bb);
+  const totalWeight = weightA + weightB;
+  const wA = weightA / totalWeight;
+  const wB = weightB / totalWeight;
+  function mixChannel(a, b){
+    const survivingA = 1 - a * wA;
+    const survivingB = 1 - b * wB;
+    return 1 - (survivingA * survivingB);
+  }
+  return cmyToHex(mixChannel(cmyA.c, cmyB.c), mixChannel(cmyA.m, cmyB.m), mixChannel(cmyA.y, cmyB.y));
+}
+
+// Underlying (bleached) base color at each level, sampled from an actual salon hair level
+// chart photo (levels 1-20). Levels 15-18 carry real yellow/gold warmth, not a clean white —
+// this is the piece that was previously missing from the on-color matching.
+const naturalLevelSwatch = {
+  1: '#040202', 2: '#040202', 3: '#040201', 4: '#0c0805', 5: '#332012',
+  6: '#422b19', 7: '#6b3f24', 8: '#8d532d', 9: '#b46837', 10: '#c1823d',
+  11: '#d09343', 12: '#e5ab4a', 13: '#f0b74c', 14: '#fbca53', 15: '#fdd856',
+  16: '#ffe55c', 17: '#fdf258', 18: '#fef785', 19: '#fefab1', 20: '#fffedf'
+};
+
+// Recommend up to N candidates closest to a target hue, AT a specific fixed base level
+// (a bleached base, e.g. level 15-18) — considering single products and same-band mixes.
+//
+// Crucially, each candidate product/mix is treated as a TINT being deposited onto that base
+// =====================================================================================
+// Recipe construction: 希望色(base) → 補色(counter-tone) → オレンジ味(O10 trim), following the
+// salon's own actual on-color workflow — not a hue-distance search over the base level's warmth.
+//
+// This replaces an earlier model that searched for whatever product, layered onto the base
+// level's own underlying warmth, simulated closest to the goal hue/lightness. That approach
+// picked products by simulated outcome regardless of whether they were realistic choices —
+// e.g. selecting strongly saturated products specifically because they cancelled the base's
+// yellow particularly well, or treating a product's own catalog level as secondary to its hue.
+// 美容師は実際にはこの逆の順序で考える: まず目的の色相・レベルに合う「希望色」を選び、地肌の
+// 黄みが効きそうな場合だけ濃い「補色」を少量足し、稀に緑/紫に転びすぎたときだけ「オレンジ味」
+// (固定でBLカラー O10)をごく少量足す。配合比は 希望色:補色:オレンジ = 10:0-3:0-1 で、希望色
+// が常に主成分。
+// =====================================================================================
+
+// 黄色(地肌の色相)からの色相距離。補色の必要性はこれで決まる — 暖色/寒色という分類ではなく、
+// 「黄色からどれだけ離れているか」が本当の決め手 (a goal hue near orange/gold needs no
+// counter-tone since it sits in the same direction as the base's own warmth; a goal far from
+// yellow — including violets, which read as "warm" in everyday language but sit far from yellow
+// on the wheel — gets muddied by the base's yellow and needs a counter-tone regardless of
+// warm/cool labeling).
+const YELLOW_HUE = 50;
+function hueDistance(a, b){
+  let d = Math.abs(a - b);
+  if(d > 180) d = 360 - d;
+  return d;
+}
+
+// Find the palette product whose own hue is closest to a target hue, within a level window.
+// Low-saturation products are penalized — a near-neutral product's hue angle is numerically
+// unstable/meaningless (a faint warm-gray can read as almost any hue depending on tiny RGB
+// differences) and such a product has little real pigment strength to act as a counter-tone or
+// base color anyway, so it shouldn't win on a coincidental hue match alone.
+// Unified base-color scoring, continuous in the GOAL'S OWN saturation (targetSat) rather than
+// a hard neutral/hued switch. As targetSat rises from 0 toward fully saturated, the score
+// smoothly shifts from "prefer low product saturation, ignore hue" (a near-gray goal has no
+// real hue direction to chase) to "prefer close hue, lightly penalize very low-saturation
+// products" (a clearly-colored goal needs a product that actually carries that hue). The
+// blend weight is targetSat itself, clamped to a 0-0.35 ramp so goals already moderately
+// colored (>0.35) are scored as fully hue-driven, matching where a hue genuinely reads as
+// intentional rather than ambiguous.
+// Unified base-color scoring as a 3D distance in HSL space (hue, saturation, lightness),
+// rather than additively penalizing hue distance and saturation gap on separate, awkwardly-
+// calibrated scales. The earlier additive approach meant tuning the saturation-gap coefficient
+// to fix one case (a vivid goal picking a washed-out product) would silently break another
+// case (a near-perfect-hue product losing to a more-saturated-but-hue-distant one) — the two
+// terms had no real common unit, so "balance" was really just luck of the calibration. Treating
+// hue/saturation/lightness as three axes of one space and taking a weighted Euclidean distance
+// makes the trade-off explicit and tunable as a single set of weights, with hue weighted much
+// more heavily (per salon feedback: hue accuracy matters most, saturation/lightness can flex).
+//
+// Hue distance is normalized to 0-1 (degrees / 180). Saturation and lightness distances are
+// already 0-1 by construction (HSL components). Goal saturation continues to control how much
+// hue should matter at all (hueWeightForSaturation) — a near-neutral goal has no real hue
+// direction, so hue's contribution fades out and saturation (favoring genuinely low-saturation
+// products) takes over, exactly as before.
+//
+// The saturation axis weight is NOT fixed — it scales with how saturated the GOAL itself is.
+// Squaring (inherent to Euclidean distance) shrinks small saturation gaps faster than it
+// shrinks the hue term, so a fixed weight that correctly balances a vivid goal (where a real
+// saturation gap, e.g. 0.4+, should matter) ends up too weak for a muted goal (where even a
+// modest-looking gap of ~0.15 is actually a large relative miss — the difference between a
+// near-gray product and a recognizably-tinted one). Scaling the weight down as the goal's own
+// saturation rises keeps a vivid goal hue-led (plenty of real pigment options exist nearby in
+// hue), while keeping a muted goal from being satisfied by a product that's actually much more
+// neutral than asked for.
+const HUE_AXIS_WEIGHT = 7, LIGHT_AXIS_WEIGHT = 1;
+function satAxisWeightForGoal(targetSat){
+  const t = Math.max(0, Math.min(1, (targetSat - 0.2) / 0.7));
+  return 6 - t * 5; // 6 at targetSat<=0.2 (muted goals), tapering to 1 at targetSat>=0.9 (vivid goals)
+}
+function hueWeightForSaturation(targetSat){
+  return Math.max(0, Math.min(1, targetSat / 0.35));
+}
+// Convert a 1-18 salon level to the same approximate lightness scale used elsewhere
+// (levelToLightness is defined further below; declared here via forward reference at call time).
+function scoreForBaseSelection(entry, targetHue, targetSat, targetLevel){
+  const {h, s, l} = rgbToHsl(...hexToRgbArr(entry.hex));
+  const hueW = hueWeightForSaturation(targetSat);
+  const hueDistNorm = hueDistance(h, targetHue) / 180;
+  const satDistNorm = Math.abs(s - targetSat);
+  const satAxisWeight = satAxisWeightForGoal(targetSat);
+  const targetLightness = (typeof targetLevel === 'number') ? levelToLightness(targetLevel) : l;
+  const lightDistNorm = (typeof targetLevel === 'number') ? Math.abs(l - targetLightness) : 0;
+
+  if(hueW <= 0.001){
+    // Goal is effectively neutral — hue has no meaning, so distance collapses to how low the
+    // product's own saturation is (still weighted against level/lightness so depth isn't
+    // ignored), matching the prior neutral-search behavior.
+    return s * 40 + lightDistNorm * 40;
+  }
+  const distance = Math.sqrt(
+    Math.pow(hueDistNorm * HUE_AXIS_WEIGHT, 2) +
+    Math.pow(satDistNorm * satAxisWeight, 2) +
+    Math.pow(lightDistNorm * LIGHT_AXIS_WEIGHT, 2)
+  );
+  // Scale back toward the goal's hue-weight so a near-neutral-but-not-quite-zero goal still
+  // blends smoothly into the neutral path above, rather than snapping at the threshold.
+  return distance * (10 * hueW) + s * 10 * (1 - hueW);
+}
+
+function findClosestByHue(palette, targetHue, levelMin, levelMax, excludeNames, targetSat){
+  excludeNames = excludeNames || [];
+  // targetSat defaults to a fully-saturated assumption (1) for callers that don't pass it
+  // (e.g. counter-tone / orange-trim searches, which are always chasing a specific hue
+  // regardless of how neutral the overall GOAL reads) — only 希望色 selection passes the
+  // actual goal saturation through, so the neutral/hued blend only applies there.
+  const effectiveSat = (typeof targetSat === 'number') ? targetSat : 1;
+  let best = null, bestScore = Infinity;
+  for(const entry of palette){
+    if(excludeNames.includes(entry.name)) continue;
+    if(entry.level < levelMin || entry.level > levelMax) continue;
+    const score = scoreForBaseSelection(entry, targetHue, effectiveSat, null);
+    if(score < bestScore){ bestScore = score; best = entry; }
+  }
+  return best;
+}
+
+// 希望色 selection for a HUED goal, using TWO products straddling the target level rather than
+// one — within the search window, find the closest-hue match BELOW the target level and the
+// closest-hue match AT/ABOVE it, then blend them at the ratio that lands exactly on the target
+// level. This solves a real tension: the single closest-hue product overall might sit at a
+// level noticeably off the target (e.g. レベル7 when the goal is レベル9), while a same-hue-
+// family product nearer the target level existed but lost purely on hue precision. Straddling
+// keeps hue accuracy (each side is still chosen by hue, not forced into an unrelated family)
+// while letting the BLEND reach the exact target depth. Brand is not a constraint — per salon
+// guidance, the two straddling products can come from either brand, whichever hue fits best on
+// each side. targetSat flows into the same continuous neutral/hued blend used everywhere else,
+// so a low-but-nonzero-saturation goal still leans toward genuinely neutral products without a
+// hard cutoff.
+function findStraddlingPairByHue(palette, targetHue, targetLevel, window, targetSat, clearEntry){
+  const lower = palette.filter(e => e.level <= targetLevel && e.level >= targetLevel - window);
+  const upper = palette.filter(e => e.level >= targetLevel && e.level <= targetLevel + window);
+  const belowEntry = findClosestByHue(lower, targetHue, targetLevel - window, targetLevel, [], targetSat);
+  const aboveEntry = findClosestByHue(upper, targetHue, targetLevel, targetLevel + window, [], targetSat);
+
+  // Before committing to a 2-product straddle, check whether USING ONLY ONE of the two
+  // straddling sides (rather than blending) already serves the goal's saturation better than
+  // the blend does. Comparing against the straddle's own two candidates (rather than a fresh,
+  // separately-windowed search) avoids introducing a different selection bias — it's asking
+  // "is blending actually helping here, or just diluting whichever side was already closer?"
+  // A single vivid product slightly off-level reads truer to a vivid goal than a blend that
+  // nails the level but washes out the color.
+
+  if(belowEntry && aboveEntry && belowEntry.name !== aboveEntry.name){
+    if(belowEntry.level === aboveEntry.level){
+      return { primary: belowEntry, secondary: null, primaryWeight: 1, secondaryWeight: 0 };
+    }
+    // Linear interpolation: weight each side by how close the OTHER side's level is to the
+    // target, so the blend's effective level lands on target (e.g. below=level7, above=level9,
+    // target=8 → equal 1:1 weight; target=9 → all-above weight).
+    const span = aboveEntry.level - belowEntry.level;
+    const aboveWeight = (targetLevel - belowEntry.level) / span;
+    const belowWeight = 1 - aboveWeight;
+    // If the interpolation lands essentially on one side (target level coincides with one
+    // product's own level), drop the near-zero side entirely rather than listing a product at
+    // a 0-weight share — it contributes nothing to the actual mix.
+    if(belowWeight < 0.05){
+      return { primary: aboveEntry, secondary: null, primaryWeight: 1, secondaryWeight: 0 };
+    }
+    if(aboveWeight < 0.05){
+      return { primary: belowEntry, secondary: null, primaryWeight: 1, secondaryWeight: 0 };
+    }
+    // Compare the straddle's blended saturation against EACH side's own saturation, relative
+    // to the goal — if blending lands noticeably further from the goal's saturation than one
+    // side already sits on its own, use that side alone instead of diluting it.
+    if(typeof targetSat === 'number'){
+      const blendedHex = blendHex(belowEntry.hex, aboveEntry.hex, belowWeight, aboveWeight);
+      const { s: blendedSat } = rgbToHsl(...hexToRgbArr(blendedHex));
+      const { s: belowSat } = rgbToHsl(...hexToRgbArr(belowEntry.hex));
+      const { s: aboveSat } = rgbToHsl(...hexToRgbArr(aboveEntry.hex));
+      const blendGap = Math.abs(blendedSat - targetSat);
+      const belowGap = Math.abs(belowSat - targetSat);
+      const aboveGap = Math.abs(aboveSat - targetSat);
+      const betterSide = belowGap <= aboveGap ? { entry: belowEntry, gap: belowGap } : { entry: aboveEntry, gap: aboveGap };
+      if(betterSide.gap < blendGap - 0.08){
+        return { primary: betterSide.entry, secondary: null, primaryWeight: 1, secondaryWeight: 0 };
+      }
+    }
+    return { primary: belowEntry, secondary: aboveEntry, primaryWeight: belowWeight, secondaryWeight: aboveWeight };
+  }
+  // Only one side found (or both sides resolved to the same product) — fall back to whichever
+  // single entry exists, or a plain closest-hue search across the full window as a last resort.
+  const single = belowEntry || aboveEntry || findClosestByHue(palette, targetHue, Math.max(1, targetLevel - window), Math.min(18, targetLevel + window), [], targetSat);
+  if(!single) return null;
+
+  // If the only hue-matched product available sits FAR below the target level (a real gap in
+  // the palette's high-level stock for this hue — saturated cool/colored pigments are thin at
+  // levels 15-18), クリア dilutes that product's strength so the result reads closer to the
+  // target's actual lightness, rather than depositing the product at full strength and landing
+  // much darker than asked for. クリア itself adds no hue/level of its own; it just cuts the
+  // chosen product's intensity, the way a colorist dilutes a vivid tint to use it on a much
+  // lighter base than the tint's own level would suggest.
+  if(clearEntry && (targetLevel - single.level) >= 5){
+    // Dilution strength scales with how far below target the product sits — further below
+    // means more dilution needed to avoid depositing too dark/strong for the target lightness.
+    const gap = targetLevel - single.level;
+    const clearShare = Math.min(8, Math.round(gap * 0.8)); // out of 10 (product:クリア ratio numerator)
+    const total = 10 + clearShare;
+    return { primary: single, secondary: clearEntry, primaryWeight: 10 / total, secondaryWeight: clearShare / total };
+  }
+  return { primary: single, secondary: null, primaryWeight: 1, secondaryWeight: 0 };
+}
+
+function displayName(entry){
+  if(entry.brandKey === 'qualucia' && entry.name !== 'クリア'){
+    return `${entry.name}${entry.level}`;
+  }
+  return entry.name;
+}
+
+// Build the on-color recipe for one base (bleached) level, following the salon's real ordering:
+// 1) 希望色 — closest hue match AT the target level itself (not the base level)
+// 2) 補色 — only if needed (hue distance from yellow, with the lv17-18-deep exception), a
+//    deliberately deep (3-6 level) product in the counter direction, mixed at up to 30% of base
+// 3) オレンジ味 — only if the counter-tone alone risks overshooting toward green/violet, BL O10
+//    mixed at up to 10% of base
+function buildOnColorRecipe(paletteKey, targetHue, targetSat, baseLevel, targetLevel){
+  let palette;
+  if(paletteKey === 'cross'){
+    palette = [];
+    for(const key in colorLines){
+      const brandLabel = colorLines[key].label;
+      for(const entry of colorLines[key].palette){
+        palette.push(Object.assign({}, entry, { brand: brandLabel, brandKey: key }));
+      }
+    }
+  } else {
+    const brandLabel = colorLines[paletteKey].label;
+    palette = colorLines[paletteKey].palette.map(entry =>
+      Object.assign({}, entry, { brand: brandLabel, brandKey: paletteKey })
+    );
+  }
+  const usable = palette.filter(e => e.name !== 'ハイライトナー' && e.name !== 'クリア');
+  // Kept separately from usable (which excludes クリア from hue-matching candidates) so it can
+  // be reached for specifically as a diluter when the target level sits far above any
+  // hue-matched product's own level (see findStraddlingPairByHue's fallback).
+  const clearEntry = palette.find(e => e.name === 'クリア');
+  // Threshold tightened from the display label's 0.20 to 0.10 for RECIPE construction
+  // specifically: a goal at saturation ~0.12-0.19 still carries a real, visible hue lean (e.g.
+  // a warm taupe/greige) even though it visually reads as "close to neutral" for the toneLabel
+  // shown to the person. Treating anything under 0.20 as directionless caused the base-color
+  // search to ignore that lean entirely and could land on a product whose hue ran opposite to
+  // the goal's actual (faint but real) direction. Only goals below 0.10 — genuinely without a
+  // discernible hue lean — skip straight to the neutral-search path now.
+  const goalIsNeutral = targetSat < 0.10;
+  const tLevel = (typeof targetLevel === 'number') ? Math.max(1, Math.min(18, targetLevel)) : baseLevel;
+
+  // --- 1) 希望色 (base) ---------------------------------------------------------------
+  // Straddle the target level with two products chosen by the unified, saturation-continuous
+  // score (scoreForBaseSelection via findStraddlingPairByHue) — hue match and depth accuracy
+  // both factor in regardless of how saturated the goal itself is, with the hue/neutrality
+  // balance shifting smoothly based on the goal's own saturation rather than switching paths
+  // at a hard cutoff.
+  let baseWindow = 4;
+  let baseResult = null;
+  let bestSingleFallback = null;
+  while(baseWindow <= 15 && !baseResult){
+    const result = findStraddlingPairByHue(usable, targetHue, tLevel, baseWindow, targetSat, clearEntry);
+    if(result && result.secondary){
+      // A real two-product straddle (or a product+クリア dilution) was found — done.
+      baseResult = result;
+    } else if(result && !bestSingleFallback){
+      // Only a single product found at this window — keep it as a fallback, but keep widening
+      // the window first in case a wider search finds a genuine straddle pair or a
+      // better-saturated single product (e.g. アクアブルー at level 7, well outside a narrow
+      // window when the target level is 17).
+      bestSingleFallback = result;
+    }
+    baseWindow += 3;
+  }
+  if(!baseResult) baseResult = bestSingleFallback;
+  if(!baseResult){
+    return null;
+  }
+  const baseEntry = baseResult.primary; // kept for display/level-gap references below
+
+  // --- 2) 補色 (counter-tone) need ----------------------------------------------------
+  // The deciding factor is hue distance from yellow (the base's own undertone) — not a
+  // warm/cool label. A goal close to yellow needs no help; anything far from yellow (including
+  // violets, which read "warm" colloquially but sit far from yellow on the wheel) gets muddied
+  // by the base's residual warmth and benefits from a counter-tone.
+  // Exception: a deep base (level 17-18) deposit aimed at a noticeably DARKER target level is
+  // saturated/strong enough on its own to bury the base's warmth without help.
+  const distFromYellow = goalIsNeutral ? 999 : hueDistance(targetHue, YELLOW_HUE);
+  const isDeepEscapeCase = (baseLevel >= 17) && (tLevel <= baseLevel - 4);
+  const needsCounterTone = !isDeepEscapeCase && (goalIsNeutral || distFromYellow > 15);
+
+  let counterEntry = null;
+  let counterRatio = 0; // out of 10 (希望色 share)
+  if(needsCounterTone){
+    // 補色's job is specifically to cancel the BASE's own residual yellow/orange undertone —
+    // not to push away from the goal hue in general. It should always point toward the
+    // yellow/orange opposite (blue-violet, ~230°), regardless of what the goal hue itself is.
+    // (Earlier this used (targetHue+180), which meant a blue/violet GOAL ended up computing a
+    // counter-tone in the brown/orange family — e.g. 4GB — since the opposite of blue is
+    // orange. That's backwards: a blue-violet goal needs LESS counter-toning, not a
+    // counter-tone that's itself warm. Counter-acting an overly-cool RESULT, if it happens, is
+    // オレンジ味's job below, using a fixed real product (BL O10) — not a second, conflicting
+    // use of 補色.)
+    const counterHue = (YELLOW_HUE + 180) % 360;
+    // 補色 is deliberately chosen from a deep (3-6 level), saturated band — per salon practice,
+    // a counter-tone product needs real pigment strength to cancel warmth at a small dose; if it
+    // were diluted to match the target level it would be too weak to act at only 0-30% share.
+    counterEntry = findClosestByHue(usable, counterHue, 3, 6);
+    if(counterEntry){
+      // Strength scales with how far the goal sits from yellow (more distance = more warmth to
+      // cancel), capped at the salon's stated ceiling of 30% of the base color's share for hued
+      // goals (counter-tone : base never exceeds 3:10). Neutral goals are capped lower, at 20%
+      // (2:10) — per salon feedback, the counter-tone's own deep saturation can overpower a
+      // light neutral base and visibly tint it (e.g. drifting blue) if pushed to the full 30%,
+      // so neutral goals use a flat, more conservative ratio rather than always maxing out.
+      if(goalIsNeutral){
+        counterRatio = 2;
+      } else {
+        // Explicit distance bands rather than a continuous round() curve — the previous smooth
+        // curve rounded a wide middle stretch (roughly 40-80°) all down to the same "2", making
+        // the result look like it was stuck at one value for most realistic goal hues. Named
+        // bands make the three tiers (10%/20%/30%) actually distinct and reachable.
+        if(distFromYellow <= 30) counterRatio = 1;
+        else if(distFromYellow <= 70) counterRatio = 2;
+        else counterRatio = 3;
+      }
+      // Additionally scale DOWN by how close the target level sits to the base level — per
+      // salon feedback, 補色 is meant only to cancel the base's own residual warmth, and that
+      // warmth itself is thinner the higher/lighter the target sits relative to the base (the
+      // same logic as isDeepEscapeCase above, but applied as a gradient rather than an
+      // all-or-nothing cutoff so it doesn't snap abruptly at the lv17-18/4-level-gap boundary).
+      // At target==base level, residual warmth is at its thinnest, so 補色 tapers toward a
+      // light touch rather than the full computed ratio.
+      const levelGapFromBase = baseLevel - tLevel; // 0 when target is as light as the base itself
+      const baseProximityFactor = Math.max(0.3, Math.min(1, levelGapFromBase / 4));
+      counterRatio = Math.max(counterRatio > 0 ? 1 : 0, Math.round(counterRatio * baseProximityFactor));
+    }
+  }
+
+  // --- 3) オレンジ味 (base-warmth trim) ------------------------------------------------
+  // Used rarely, only to pull back a counter-tone that risks overshooting toward green/violet —
+  // per salon practice this is specifically BL O10, never another orange. Approximated here as:
+  // needed when a counter-tone was used AND the counter-tone's own hue sits in the green-through-
+  // violet zone where overshoot is the actual risk (per salon: mostly relevant at base level 18
+  // pushing toward a lighter goal, where 補色 alone tends to swing too far).
+  let needsOrangeTrim = false;
+  if(counterEntry){
+    const {h: counterHue2} = rgbToHsl(...hexToRgbArr(counterEntry.hex));
+    const inOvershootZone = counterHue2 > 80 && counterHue2 < 300;
+    needsOrangeTrim = inOvershootZone && baseLevel >= 17 && tLevel >= baseLevel - 2;
+  }
+  let orangeEntry = null;
+  let orangeRatio = 0; // out of 10
+  if(needsOrangeTrim){
+    orangeEntry = blColorPalette.find(e => e.name === '10O');
+    if(orangeEntry) orangeRatio = 1;
+  }
+
+  // --- Assemble result -----------------------------------------------------------------
+  // 希望色 share is always 10 total, split between the two straddling products (or all 10 on
+  // one product if only one side was found / the goal is neutral).
+  const parts = [{ entry: baseResult.primary, brandKey: baseResult.primary.brandKey, weight: 10 * baseResult.primaryWeight }];
+  if(baseResult.secondary){
+    parts.push({ entry: baseResult.secondary, brandKey: baseResult.secondary.brandKey, weight: 10 * baseResult.secondaryWeight });
+  }
+  if(counterEntry) parts.push({ entry: counterEntry, brandKey: counterEntry.brandKey, weight: counterRatio });
+  if(orangeEntry) parts.push({ entry: orangeEntry, brandKey: 'bl', weight: orangeRatio });
+
+  let mixedHex = parts[0].entry.hex;
+  let accumulatedWeight = parts[0].weight;
+  for(let i = 1; i < parts.length; i++){
+    mixedHex = blendHex(mixedHex, parts[i].entry.hex, accumulatedWeight, parts[i].weight);
+    accumulatedWeight += parts[i].weight;
+  }
+
+  const crossBrand = parts.some(p => p.brandKey !== parts[0].brandKey);
+  // Round weights to whole numbers for display — the straddling interpolation can produce
+  // fractional splits (e.g. 6.7:3.3) which read as false precision in a salon recipe; a colorist
+  // doesn't measure to a tenth of a unit. Each part rounds independently and a part that rounds
+  // to 0 is dropped from the label/ratio entirely (it's visually negligible at that point).
+  const roundedParts = parts
+    .map(p => ({ ...p, displayWeight: Math.round(p.weight) }))
+    .filter(p => p.displayWeight > 0);
+  const label = roundedParts.map(p => displayName(p.entry)).join(' : ');
+  const ratioLabel = roundedParts.map(p => p.displayWeight).join(':');
+
+  // Simulated result for the swatch/preview: layer the assembled tint over the actual base
+  // level's residual warmth, same CMY model as before, so the on-screen preview still reflects
+  // what the base level itself will do to the finished color.
+  const underHex = naturalLevelSwatch[Math.max(1, Math.min(20, Math.round(baseLevel)))];
+  const tintWeight = tintWeightForBase(baseLevel);
+  const resultHex = subtractiveMixHex(underHex, mixedHex, 1, tintWeight);
+  const [mr, mg, mb] = hexToRgbArr(resultHex);
+  const { l: resultLightness } = rgbToHsl(mr, mg, mb);
+
+  return {
+    type: roundedParts.length > 1 ? 'mix' : 'single',
+    hex: mixedHex,
+    resultHex: resultHex,
+    resultLevel: lightnessToLevel(resultLightness),
+    label: label,
+    ratio: parts.length > 1 ? ratioLabel : null,
+    crossBrand: crossBrand,
+    counterToneUsed: !!counterEntry,
+    orangeTrimUsed: !!orangeEntry,
+    brand: parts[0].entry.brand
+  };
+}
+
+function tintWeightForBase(level){
+  const t = Math.max(0, Math.min(1, (level - 15) / 3)); // 0 at lv15, 1 at lv18
+  const eased = t * t;
+  return 2.5 + eased * 5.5; // 1:2.5 at lv15 (base shows through as a tinge, not half-strength), 1:8 at lv18
+}
+function levelToLightness(level){
+  const t = (level - 1) / 17;
+  return Math.pow(t, 1/0.9) * 0.92 + 0.04;
+}
+function lightnessToLevel(lightness){
+  const t = Math.max(0, Math.min(1, (lightness - 0.04) / 0.92));
+  const norm = Math.pow(t, 0.9);
+  return Math.max(1, Math.min(18, norm * 17 + 1));
+}
+
+// Match quality label — now reflects whether a real recipe was assembled at all, rather than a
+// hue-distance score (the new construction always targets the goal directly via 希望色 selection,
+// so "distance" in the old sense no longer applies the same way).
+function matchLabelFromScore(score){
+  if(score < 8) return { label:'到達', cls:'good' };
+  if(score < 20) return { label:'近い', cls:'mid' };
+  return { label:'限定的', cls:'low' };
+}
+
+// =====================================================================================
+// Image upload + crop-to-color extraction (same clustering approach as カラーナビ)
+// =====================================================================================
+let goalImg = null;
+let goalSel = null;
+let goalAnalysis = null;
+let dragState = null;
+
+document.getElementById('uploadZone').addEventListener('click', () => {
+  document.getElementById('fileGoal').click();
+});
+
+document.getElementById('fileGoal').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      goalImg = img;
+      document.getElementById('cropImg').src = ev.target.result;
+      document.getElementById('cropStage').classList.add('active');
+      document.getElementById('uploadZone').style.display = 'none';
+      resetSelection();
+      setupCropDrag();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+function resetSelection(){
+  goalSel = null;
+  goalAnalysis = null;
+  const box = document.getElementById('cropBox');
+  box.style.display = 'none';
+  box.classList.remove('confirmed');
+  document.getElementById('readoutRow').style.display = 'none';
+  document.getElementById('reselectBtn').style.display = 'none';
+  document.getElementById('cropHint').textContent = '写真の中の「目的色」部分を指でなぞって囲んでください';
+  document.getElementById('cropHint').classList.remove('confirmed');
+  updateGenerateButton();
+}
+
+function setupCropDrag(){
+  const frame = document.getElementById('cropFrame');
+  const box = document.getElementById('cropBox');
+  let startX, startY;
+
+  function getPoint(e){
+    const rect = frame.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top, rect };
+  }
+
+  function onDown(e){
+    e.preventDefault();
+    const p = getPoint(e);
+    startX = Math.max(0, Math.min(p.x, p.rect.width));
+    startY = Math.max(0, Math.min(p.y, p.rect.height));
+    box.style.left = startX + 'px';
+    box.style.top = startY + 'px';
+    box.style.width = '0px';
+    box.style.height = '0px';
+    box.style.display = 'block';
+    box.classList.remove('confirmed');
+    dragState = { active:true, rect:p.rect };
+  }
+  function onMove(e){
+    if(!dragState || !dragState.active) return;
+    e.preventDefault();
+    const p = getPoint(e);
+    const curX = Math.max(0, Math.min(p.x, dragState.rect.width));
+    const curY = Math.max(0, Math.min(p.y, dragState.rect.height));
+    const left = Math.min(startX, curX);
+    const top = Math.min(startY, curY);
+    const w = Math.abs(curX - startX);
+    const h = Math.abs(curY - startY);
+    box.style.left = left + 'px';
+    box.style.top = top + 'px';
+    box.style.width = w + 'px';
+    box.style.height = h + 'px';
+  }
+  function onUp(e){
+    if(!dragState || !dragState.active) return;
+    dragState.active = false;
+    const boxLeft = parseFloat(box.style.left);
+    const boxTop = parseFloat(box.style.top);
+    const boxW = parseFloat(box.style.width);
+    const boxH = parseFloat(box.style.height);
+    if(boxW < 12 || boxH < 12){
+      box.style.display = 'none';
+      return;
+    }
+    const sel = displayRectToNaturalRect(boxLeft, boxTop, boxW, boxH, dragState.rect.width, dragState.rect.height, goalImg.naturalWidth, goalImg.naturalHeight);
+    goalSel = sel;
+    box.classList.add('confirmed');
+    document.getElementById('cropHint').textContent = '範囲を選択しました';
+    document.getElementById('cropHint').classList.add('confirmed');
+    document.getElementById('reselectBtn').style.display = 'inline-block';
+
+    goalAnalysis = analyzeImage(goalImg, sel);
+    renderReadout(goalAnalysis);
+    updateGenerateButton();
+  }
+
+  frame.addEventListener('mousedown', onDown);
+  frame.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+  frame.addEventListener('touchstart', onDown, {passive:false});
+  frame.addEventListener('touchmove', onMove, {passive:false});
+  frame.addEventListener('touchend', onUp);
+}
+
+function displayRectToNaturalRect(boxLeft, boxTop, boxW, boxH, displayW, displayH, naturalW, naturalH){
+  const displayRatio = displayW / displayH;
+  const naturalRatio = naturalW / naturalH;
+  let scale, offsetX = 0, offsetY = 0;
+  if(naturalRatio > displayRatio){
+    scale = displayH / naturalH;
+    offsetX = (naturalW * scale - displayW) / 2;
+  } else {
+    scale = displayW / naturalW;
+    offsetY = (naturalH * scale - displayH) / 2;
+  }
+  const nx = (boxLeft + offsetX) / scale;
+  const ny = (boxTop + offsetY) / scale;
+  const nw = boxW / scale;
+  const nh = boxH / scale;
+  return {
+    x: Math.max(0, Math.round(nx)),
+    y: Math.max(0, Math.round(ny)),
+    w: Math.round(Math.min(nw, naturalW - nx)),
+    h: Math.round(Math.min(nh, naturalH - ny))
+  };
+}
+
+function analyzeImage(img, region){
+  const canvas = document.getElementById('hiddenCanvas');
+  const ctx = canvas.getContext('2d');
+  const sx = region.x, sy = region.y, sw = Math.max(1, region.w), sh = Math.max(1, region.h);
+  const outW = 80, outH = 80;
+  canvas.width = outW;
+  canvas.height = outH;
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
+  const data = ctx.getImageData(0, 0, outW, outH).data;
+
+  const insetX = Math.round(outW * 0.15);
+  const insetY = Math.round(outH * 0.15);
+
+  let pixels = [];
+  for(let y = insetY; y < outH - insetY; y++){
+    for(let x = insetX; x < outW - insetX; x++){
+      const i = (y * outW + x) * 4;
+      const r=data[i], g=data[i+1], b=data[i+2];
+      const lum = (r+g+b)/3;
+      if(lum > 12 && lum < 248){
+        pixels.push([r,g,b]);
+      }
+    }
+  }
+  if(pixels.length === 0){
+    for(let i=0; i<data.length; i+=4){ pixels.push([data[i], data[i+1], data[i+2]]); }
+  }
+
+  const bucketSize = 24;
+  const buckets = {};
+  for(const [r,g,b] of pixels){
+    const key = [Math.floor(r/bucketSize), Math.floor(g/bucketSize), Math.floor(b/bucketSize)].join(',');
+    if(!buckets[key]){ buckets[key] = { count: 0, rSum: 0, gSum: 0, bSum: 0 }; }
+    buckets[key].count++;
+    buckets[key].rSum += r;
+    buckets[key].gSum += g;
+    buckets[key].bSum += b;
+  }
+  let bestBucket = null;
+  for(const key in buckets){
+    if(!bestBucket || buckets[key].count > bestBucket.count){
+      bestBucket = buckets[key];
+    }
+  }
+  const r = bestBucket.rSum / bestBucket.count;
+  const g = bestBucket.gSum / bestBucket.count;
+  const b = bestBucket.bSum / bestBucket.count;
+  const dominantShare = bestBucket.count / pixels.length;
+  const hex = '#' + [r,g,b].map(v => Math.round(v).toString(16).padStart(2,'0')).join('');
+  const {h: hue, s: sat} = rgbToHsl(r,g,b);
+
+  // Level: map luminance to the 1-18 hairdressing level scale (same piecewise gamma curve as
+  // カラーナビ), so the goal photo's own brightness is captured as a target level — without
+  // this, recipe selection had no way to prefer a result that actually matches how light/dark
+  // the goal color itself is, only its hue.
+  const luminance = 0.299*r + 0.587*g + 0.114*b;
+  const norm = luminance / 255;
+  let level;
+  if(norm < 0.10){ level = 1; }
+  else if(norm < 0.14){ level = 2; }
+  else if(norm < 0.18){ level = 4; }
+  else {
+    const adjusted = Math.pow(norm, 0.9);
+    level = Math.max(1, Math.min(18, Math.round(adjusted * 17) + 1));
+  }
+
+  let toneLabel;
+  if(sat < 0.20){ toneLabel = 'ニュートラル(無彩色寄り)'; }
+  else if(hue >= 0 && hue < 25){ toneLabel = 'レッド系'; }
+  else if(hue >= 25 && hue < 50){ toneLabel = 'オレンジ系'; }
+  else if(hue >= 50 && hue < 75){ toneLabel = 'イエロー/ゴールド系'; }
+  else if(hue >= 75 && hue < 160){ toneLabel = 'グリーン/アッシュ系'; }
+  else if(hue >= 160 && hue < 260){ toneLabel = 'ブルー/アッシュ系'; }
+  else if(hue >= 260 && hue < 320){ toneLabel = 'バイオレット系'; }
+  else { toneLabel = 'レッド系'; }
+
+  return { r, g, b, hex, hue, sat, level, toneLabel, dominantShare };
+}
+
+function renderReadout(analysis){
+  document.getElementById('readoutRow').style.display = 'flex';
+  document.getElementById('readoutChip').style.background = analysis.hex;
+  document.getElementById('readoutText').innerHTML =
+    `目的色 推定 <strong>${analysis.hex}</strong><br>${analysis.toneLabel}`;
+
+  const existing = document.querySelector('.sample-warning');
+  if(existing) existing.remove();
+  if(analysis.dominantShare < 0.35){
+    const warn = document.createElement('div');
+    warn.className = 'sample-warning';
+    warn.textContent = '⚠ 範囲に背景や他の色が混ざっている可能性があります。色だけの部分をもう少し狭く囲み直すと精度が上がります。';
+    document.getElementById('readoutRow').appendChild(warn);
+  }
+}
+
+// =====================================================================================
+// Ruler generation
+// =====================================================================================
+function updateGenerateButton(){
+  const btn = document.getElementById('generateBtn');
+  if(goalAnalysis){
+    btn.disabled = false;
+    btn.textContent = 'レベル別の処方を見る';
+  } else {
+    btn.disabled = true;
+    btn.textContent = '写真を選択してください';
+  }
+}
+
+const BASE_LEVELS = [18, 17, 16, 15];
+
+function generateRuler(){
+  if(!goalAnalysis) return;
+
+  document.getElementById('goalDotMini').style.background = goalAnalysis.hex;
+  document.getElementById('goalHexMini').textContent = `${goalAnalysis.hex} ・ ${goalAnalysis.toneLabel}`;
+
+  const container = document.getElementById('rungContainer');
+  // 3-color (tone+tone+クリア) candidate search widened the per-level computation enough that
+  // it's no longer instant — showing a loading state immediately (before the heavy synchronous
+  // work below) avoids the page looking frozen. The actual computation is deferred one tick via
+  // setTimeout so this loading markup has a chance to paint first.
+  container.innerHTML = `<div class="ruler-loading">処方を計算しています…</div>`;
+  document.getElementById('rulerResults').classList.add('show');
+  document.getElementById('rulerResults').scrollIntoView({ behavior:'smooth', block:'start' });
+
+  setTimeout(() => {
+    container.innerHTML = '';
+    runRulerComputation(container);
+  }, 0);
+}
+
+function runRulerComputation(container){
+  BASE_LEVELS.forEach(level => {
+    const m = buildOnColorRecipe(activeColorLine, goalAnalysis.hue, goalAnalysis.sat, level, goalAnalysis.level);
+    const rung = document.createElement('div');
+    rung.className = 'rung';
+
+    if(!m){
+      rung.innerHTML = `
+        <div class="rung-level"><span class="num">${level}</span><span class="lv-label">LEVEL</span></div>
+        <div class="rung-body"><span class="no-match">このレベル帯に近い候補が見つかりませんでした</span></div>
+      `;
+      container.appendChild(rung);
+      return;
+    }
+
+    const isMix = m.type === 'mix';
+    const crossTag = (isMix && m.crossBrand) ? `<span class="brand-tag cross">メーカー違い</span>` : '';
+    const singleBrandTag = (!isMix && activeColorLine === 'cross') ? `<span class="brand-tag">${m.brand}</span>` : '';
+    const subText = isMix
+      ? `配合比 ${m.ratio} ・ 仕上がりレベル目安 ${Math.round(m.resultLevel)}`
+      : `仕上がりレベル目安 ${Math.round(m.resultLevel)}`;
+    const recipeNote = (m.counterToneUsed || m.orangeTrimUsed)
+      ? `<div class="sink-note">${m.counterToneUsed ? '補色で地肌の黄みを打ち消し' : ''}${(m.counterToneUsed && m.orangeTrimUsed) ? ' ・ ' : ''}${m.orangeTrimUsed ? 'オレンジ味(BL O10)で転びを微調整' : ''}</div>`
+      : '';
+
+    rung.innerHTML = `
+      <div class="rung-level"><span class="num">${level}</span><span class="lv-label">LEVEL</span></div>
+      <div class="rung-body">
+        <div class="swatch-pair-wrap">
+          <div class="swatch-pair-labels"><span>剤</span><span>仕上がり</span></div>
+          <div class="swatch-pair">
+            <div class="rung-swatch" style="background:${m.hex}" title="カラー剤そのものの色"></div>
+            <div class="rung-swatch result" style="background:${m.resultHex}" title="この地肌に乗せた仕上がり予測"></div>
+          </div>
+        </div>
+        <div class="rung-recipe">
+          <div class="recipe-name">${m.label}${crossTag}${singleBrandTag}</div>
+          <div class="recipe-sub">${subText}</div>
+          ${recipeNote}
+        </div>
+      </div>
+    `;
+    container.appendChild(rung);
+  });
+}
+</script>
+</body>
+</html>
