@@ -1006,15 +1006,28 @@ function buildOnColorRecipe(paletteKey, targetHue, targetSat, baseLevel, targetL
   const baseEntry = baseResult.primary; // kept for display/level-gap references below
 
   // --- 2) 補色 (counter-tone) need ----------------------------------------------------
-  // The deciding factor is hue distance from yellow (the base's own undertone) — not a
-  // warm/cool label. A goal close to yellow needs no help; anything far from yellow (including
-  // violets, which read "warm" colloquially but sit far from yellow on the wheel) gets muddied
-  // by the base's residual warmth and benefits from a counter-tone.
-  // Exception: a deep base (level 17-18) deposit aimed at a noticeably DARKER target level is
-  // saturated/strong enough on its own to bury the base's warmth without help.
+  // Ported from カラーナビ's own goalAlignedWithUnderlying check: the deciding factor isn't
+  // simply "how far is the goal hue from yellow" — it's whether the goal hue is ALREADY close
+  // to whatever hue the underlying base actually reads as AT THE TARGET LEVEL, and vivid enough
+  // that the goal effectively IS that warm pigment rather than a muted version needing
+  // cancellation. A goal far from yellow on the wheel can still need NO counter-tone if it's a
+  // vivid warm color that already sits close in hue to the base's own warmth at that depth (e.g.
+  // a strongly saturated red/brown goal at a low target level, where red and the base's
+  // brown/orange undertone at that depth are close enough in hue that nothing needs cancelling).
+  // Conversely a goal that happens to sit numerically close to pure yellow (50°) but is faint
+  // (low saturation) still benefits from cleanup — the old "distance from yellow" rule treated
+  // such faint near-yellow goals as automatically safe, which wasn't the actual criterion either.
+  const underlyingHexAtTarget = naturalLevelSwatch[Math.max(1, Math.min(20, Math.round(tLevel)))];
+  const { h: underlyingHueAtTarget } = rgbToHsl(...hexToRgbArr(underlyingHexAtTarget));
+  const goalUnderlyingHueGap = goalIsNeutral ? 999 : hueDistance(targetHue, underlyingHueAtTarget);
+  const GOAL_HIGH_SAT_THRESHOLD = 0.45;
+  const GOAL_UNDERLYING_HUE_ALIGNMENT = 35;
+  const goalAlignedWithUnderlying = !goalIsNeutral
+    && targetSat >= GOAL_HIGH_SAT_THRESHOLD
+    && goalUnderlyingHueGap <= GOAL_UNDERLYING_HUE_ALIGNMENT;
   const distFromYellow = goalIsNeutral ? 999 : hueDistance(targetHue, YELLOW_HUE);
   const isDeepEscapeCase = (baseLevel >= 17) && (tLevel <= baseLevel - 4);
-  const needsCounterTone = !isDeepEscapeCase && (goalIsNeutral || distFromYellow > 15);
+  const needsCounterTone = !isDeepEscapeCase && !goalAlignedWithUnderlying && (goalIsNeutral || distFromYellow > 15);
 
   let counterEntry = null;
   let counterRatio = 0; // out of 10 (希望色 share)
