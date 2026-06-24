@@ -794,7 +794,14 @@ function hueDistance(a, b){
 // saturation rises keeps a vivid goal hue-led (plenty of real pigment options exist nearby in
 // hue), while keeping a muted goal from being satisfied by a product that's actually much more
 // neutral than asked for.
-const HUE_AXIS_WEIGHT = 7, LIGHT_AXIS_WEIGHT = 1;
+//
+// LIGHT_AXIS_WEIGHT raised from 1 to 3: a fixed weight of 1 let a product whose saturation
+// happened to match the goal almost exactly (e.g. a level-10 product when the goal sits at
+// level 6) win purely on that saturation match, even though its own depth was 4+ levels off
+// target — squaring shrinks the lightness gap's contribution fast enough at weight 1 that a
+// product several levels away from the target depth could still out-score one much closer in
+// level but with a slightly larger saturation gap. Depth accuracy needed more real pull.
+const HUE_AXIS_WEIGHT = 7, LIGHT_AXIS_WEIGHT = 3;
 function satAxisWeightForGoal(targetSat){
   const t = Math.max(0, Math.min(1, (targetSat - 0.2) / 0.7));
   return 6 - t * 5; // 6 at targetSat<=0.2 (muted goals), tapering to 1 at targetSat>=0.9 (vivid goals)
@@ -829,7 +836,7 @@ function scoreForBaseSelection(entry, targetHue, targetSat, targetLevel){
   return distance * (10 * hueW) + s * 10 * (1 - hueW);
 }
 
-function findClosestByHue(palette, targetHue, levelMin, levelMax, excludeNames, targetSat){
+function findClosestByHue(palette, targetHue, levelMin, levelMax, excludeNames, targetSat, targetLevel){
   excludeNames = excludeNames || [];
   // targetSat defaults to a fully-saturated assumption (1) for callers that don't pass it
   // (e.g. counter-tone / orange-trim searches, which are always chasing a specific hue
@@ -840,7 +847,13 @@ function findClosestByHue(palette, targetHue, levelMin, levelMax, excludeNames, 
   for(const entry of palette){
     if(excludeNames.includes(entry.name)) continue;
     if(entry.level < levelMin || entry.level > levelMax) continue;
-    const score = scoreForBaseSelection(entry, targetHue, effectiveSat, null);
+    // targetLevel (when provided) folds lightness/depth accuracy into the score — without it,
+    // scoreForBaseSelection's lightness term collapses to 0 and a product is judged purely on
+    // hue+saturation, regardless of how far its own level sits from where the goal actually
+    // needs depth. This matters even within a single levelMin/levelMax band: that band can
+    // still span several levels (e.g. a ±4 window), wide enough for a product near one edge to
+    // beat a product much closer to the actual target level on hue/saturation alone.
+    const score = scoreForBaseSelection(entry, targetHue, effectiveSat, targetLevel);
     if(score < bestScore){ bestScore = score; best = entry; }
   }
   return best;
@@ -861,8 +874,8 @@ function findClosestByHue(palette, targetHue, levelMin, levelMax, excludeNames, 
 function findStraddlingPairByHue(palette, targetHue, targetLevel, window, targetSat, clearEntry){
   const lower = palette.filter(e => e.level <= targetLevel && e.level >= targetLevel - window);
   const upper = palette.filter(e => e.level >= targetLevel && e.level <= targetLevel + window);
-  const belowEntry = findClosestByHue(lower, targetHue, targetLevel - window, targetLevel, [], targetSat);
-  const aboveEntry = findClosestByHue(upper, targetHue, targetLevel, targetLevel + window, [], targetSat);
+  const belowEntry = findClosestByHue(lower, targetHue, targetLevel - window, targetLevel, [], targetSat, targetLevel);
+  const aboveEntry = findClosestByHue(upper, targetHue, targetLevel, targetLevel + window, [], targetSat, targetLevel);
 
   // Before committing to a 2-product straddle, check whether USING ONLY ONE of the two
   // straddling sides (rather than blending) already serves the goal's saturation better than
@@ -911,7 +924,7 @@ function findStraddlingPairByHue(palette, targetHue, targetLevel, window, target
   }
   // Only one side found (or both sides resolved to the same product) — fall back to whichever
   // single entry exists, or a plain closest-hue search across the full window as a last resort.
-  const single = belowEntry || aboveEntry || findClosestByHue(palette, targetHue, Math.max(1, targetLevel - window), Math.min(18, targetLevel + window), [], targetSat);
+  const single = belowEntry || aboveEntry || findClosestByHue(palette, targetHue, Math.max(1, targetLevel - window), Math.min(18, targetLevel + window), [], targetSat, targetLevel);
   if(!single) return null;
 
   // If the only hue-matched product available sits FAR below the target level (a real gap in
