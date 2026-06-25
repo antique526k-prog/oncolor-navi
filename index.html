@@ -435,8 +435,8 @@
   </header>
 
   <div class="intro">
-    <h1>レベル15〜18から、その目的色へ。</h1>
-    <p>ブリーチ済みの土台は、レベルごとに発色の入り方が違います。写真から目的色を取り込めば、レベル15〜18それぞれが今その色に到達するための処方を1案ずつ、物差しのように並べて表示します。</p>
+    <h1>レベル10〜18から、その目的色へ。</h1>
+    <p>ブリーチ済みの土台は、レベルごとに発色の入り方が違います。写真から目的色を取り込めば、レベル10〜18それぞれが今その色に到達するための処方を1案ずつ、物差しのように並べて表示します。</p>
     <div class="premise-tags">
       <span class="premise-tag">前提：ブリーチ済み毛</span>
       <span class="premise-tag">クオルシア × フィヨーレ BLカラー ミックス可</span>
@@ -491,57 +491,57 @@
 // Color data — extracted from the salon's own color chart photos (same source as カラーナビ).
 // =====================================================================================
 const qualuciaPalette = [
-  { name: 'ハイライトナー', nameEn: 'High Lightner', level: 14, hex: '#dfdecb' },
-  { name: 'シルバーアッシュ', nameEn: 'Silver Ash', level: 14, hex: '#7c7194' },
-  { name: 'ラベンダー', nameEn: 'Lavender', level: 14, hex: '#765179' },
-  { name: 'ベージュ', nameEn: 'Beige', level: 14, hex: '#a4918c' },
-  { name: 'グレー', nameEn: 'Gray', level: 13, hex: '#746e6e' },
-  { name: 'シルバー', nameEn: 'Silver', level: 13, hex: '#8c818f' },
-  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 13, hex: '#847265' },
-  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 13, hex: '#a7877f' },
-  { name: 'ベージュ', nameEn: 'Beige', level: 13, hex: '#a08071' },
-  { name: 'グレー', nameEn: 'Gray', level: 11, hex: '#57514e' },
-  { name: 'シルバー', nameEn: 'Silver', level: 11, hex: '#716770' },
-  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 11, hex: '#635346' },
-  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 11, hex: '#90716a' },
-  { name: 'ベージュ', nameEn: 'Beige', level: 11, hex: '#8f7166' },
-  { name: 'グレー', nameEn: 'Gray', level: 9, hex: '#46423f' },
-  { name: 'シルバー', nameEn: 'Silver', level: 9, hex: '#60575c' },
-  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 9, hex: '#463b32' },
-  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 9, hex: '#82625a' },
-  { name: 'ベージュ', nameEn: 'Beige', level: 9, hex: '#735648' },
-  { name: 'ベージュ', nameEn: 'Beige', level: 8, hex: '#523d34' },
-  { name: 'グレー', nameEn: 'Gray', level: 7, hex: '#47433f' },
-  { name: 'シルバー', nameEn: 'Silver', level: 7, hex: '#564d52' },
-  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 7, hex: '#342b27' },
-  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 7, hex: '#5c3f36' },
-  { name: 'ベージュ', nameEn: 'Beige', level: 7, hex: '#37261f' },
-  { name: 'グレー', nameEn: 'Gray', level: 5, hex: '#363430' },
-  { name: 'シルバー', nameEn: 'Silver', level: 5, hex: '#352e2f' },
-  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 5, hex: '#28221e' },
-  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 5, hex: '#412c27' },
-  { name: 'ベージュ', nameEn: 'Beige', level: 5, hex: '#291d18' },
-  { name: 'グリーン', nameEn: 'Green', level: 6, hex: '#2f4a3b' },
-  { name: 'コーラルピンク', nameEn: 'Coral Pink', level: 10, hex: '#79474c' },
-  { name: 'イエロー', nameEn: 'Yellow', level: 11, hex: '#e3b45a' },
-  { name: 'アクアブルー', nameEn: 'Aqua Blue', level: 7, hex: '#446073' },
-  { name: 'コーラルピンク', nameEn: 'Coral Pink', level: 6, hex: '#5f3a3a' },
-  { name: 'オレンジ', nameEn: 'Orange', level: 10, hex: '#522c23' },
-  { name: 'ウルトラバイオレット', nameEn: 'Ultra Violet', level: 6, hex: '#443858' },
-  { name: 'カーディナルレッド', nameEn: 'Cardinal Red', level: 7, hex: '#592b2b' },
-  { name: 'ミルキーホワイト', nameEn: 'Milky White', level: 10, hex: '#ddd5ca' },
-  { name: 'ディープバイオレット', nameEn: 'Deep Violet', level: 5, hex: '#2c2130' },
-  { name: 'レッド', nameEn: 'Red', level: 7, hex: '#482731' },
-  { name: 'クリア', nameEn: 'Clear', level: 0, hex: '#dadbcd' },
-  { name: 'ネイビーブルー', nameEn: 'Navy Blue', level: 5, hex: '#1f2130' },
-  { name: 'ピンク', nameEn: 'Pink', level: 6, hex: '#50272b' },
-  { name: 'グレージュ', nameEn: 'Greige', level: 7, hex: '#3c4044' },
-  { name: 'ネイビーブルー', nameEn: 'Navy Blue', level: 3, hex: '#1a1c27' },
-  { name: 'ピンクパール', nameEn: 'Pink Pearl', level: 6, hex: '#5d3f47' },
-  { name: 'ブラウンブースター', nameEn: 'Brown Booster', level: 3, hex: '#221d18' },
-  { name: 'ディープパープル', nameEn: 'Deep Purple', level: 5, hex: '#1f1419' },
-  { name: 'ロイヤルパープル', nameEn: 'Royal Purple', level: 3, hex: '#302235' },
-  { name: 'ブラックブースター', nameEn: 'Black Booster', level: 1, hex: '#14120f' }
+  { name: 'ハイライトナー', nameEn: 'High Lightner', level: 14, hex: '#f2f3e5' },
+  { name: 'シルバーアッシュ', nameEn: 'Silver Ash', level: 14, hex: '#a89bc3' },
+  { name: 'ラベンダー', nameEn: 'Lavender', level: 14, hex: '#a475a8' },
+  { name: 'ベージュ', nameEn: 'Beige', level: 14, hex: '#cbb9b5' },
+  { name: 'グレー', nameEn: 'Gray', level: 13, hex: '#a39b9c' },
+  { name: 'シルバー', nameEn: 'Silver', level: 13, hex: '#b5aab8' },
+  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 13, hex: '#ab9586' },
+  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 13, hex: '#cbaca4' },
+  { name: 'ベージュ', nameEn: 'Beige', level: 13, hex: '#c9a898' },
+  { name: 'グレー', nameEn: 'Gray', level: 11, hex: '#756b69' },
+  { name: 'シルバー', nameEn: 'Silver', level: 11, hex: '#968a96' },
+  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 11, hex: '#8c7664' },
+  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 11, hex: '#bb9a93' },
+  { name: 'ベージュ', nameEn: 'Beige', level: 11, hex: '#b89789' },
+  { name: 'グレー', nameEn: 'Gray', level: 9, hex: '#6c6763' },
+  { name: 'シルバー', nameEn: 'Silver', level: 9, hex: '#83767c' },
+  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 9, hex: '#685745' },
+  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 9, hex: '#aa857a' },
+  { name: 'ベージュ', nameEn: 'Beige', level: 9, hex: '#9a7665' },
+  { name: 'ベージュ', nameEn: 'Beige', level: 8, hex: '#75574a' },
+  { name: 'グレー', nameEn: 'Gray', level: 7, hex: '#635c56' },
+  { name: 'シルバー', nameEn: 'Silver', level: 7, hex: '#786b73' },
+  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 7, hex: '#4a3b33' },
+  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 7, hex: '#7a554a' },
+  { name: 'ベージュ', nameEn: 'Beige', level: 7, hex: '#4b342b' },
+  { name: 'グレー', nameEn: 'Gray', level: 5, hex: '#48453b' },
+  { name: 'シルバー', nameEn: 'Silver', level: 5, hex: '#453a3b' },
+  { name: 'サンドベージュ', nameEn: 'Sand Beige', level: 5, hex: '#372c26' },
+  { name: 'ピンクベージュ', nameEn: 'Pink Beige', level: 5, hex: '#583b35' },
+  { name: 'ベージュ', nameEn: 'Beige', level: 5, hex: '#3c2923' },
+  { name: 'グリーン', nameEn: 'Green', level: 6, hex: '#35664b' },
+  { name: 'コーラルピンク', nameEn: 'Coral Pink', level: 10, hex: '#a76b73' },
+  { name: 'イエロー', nameEn: 'Yellow', level: 11, hex: '#feda85' },
+  { name: 'アクアブルー', nameEn: 'Aqua Blue', level: 7, hex: '#5888a6' },
+  { name: 'コーラルピンク', nameEn: 'Coral Pink', level: 6, hex: '#865858' },
+  { name: 'オレンジ', nameEn: 'Orange', level: 10, hex: '#764437' },
+  { name: 'ウルトラバイオレット', nameEn: 'Ultra Violet', level: 6, hex: '#5b467a' },
+  { name: 'カーディナルレッド', nameEn: 'Cardinal Red', level: 7, hex: '#753b3a' },
+  { name: 'ミルキーホワイト', nameEn: 'Milky White', level: 10, hex: '#f3eee6' },
+  { name: 'ディープバイオレット', nameEn: 'Deep Violet', level: 5, hex: '#432c49' },
+  { name: 'レッド', nameEn: 'Red', level: 7, hex: '#673646' },
+  { name: 'クリア', nameEn: 'Clear', level: 0, hex: '#f1f2e8' },
+  { name: 'ネイビーブルー', nameEn: 'Navy Blue', level: 5, hex: '#282b46' },
+  { name: 'ピンク', nameEn: 'Pink', level: 6, hex: '#69353b' },
+  { name: 'グレージュ', nameEn: 'Greige', level: 7, hex: '#5c6268' },
+  { name: 'ネイビーブルー', nameEn: 'Navy Blue', level: 3, hex: '#232739' },
+  { name: 'ピンクパール', nameEn: 'Pink Pearl', level: 6, hex: '#865865' },
+  { name: 'ブラウンブースター', nameEn: 'Brown Booster', level: 3, hex: '#2c241a' },
+  { name: 'ディープパープル', nameEn: 'Deep Purple', level: 5, hex: '#341b26' },
+  { name: 'ロイヤルパープル', nameEn: 'Royal Purple', level: 3, hex: '#482c53' },
+  { name: 'ブラックブースター', nameEn: 'Black Booster', level: 1, hex: '#1c1913' }
 ];
 
 const blColorPalette = [
@@ -896,13 +896,37 @@ function findStraddlingPairByHue(palette, targetHue, targetLevel, window, target
     const aboveWeight = (targetLevel - belowEntry.level) / span;
     const belowWeight = 1 - aboveWeight;
     // If the interpolation lands essentially on one side (target level coincides with one
-    // product's own level), drop the near-zero side entirely rather than listing a product at
-    // a 0-weight share — it contributes nothing to the actual mix.
-    if(belowWeight < 0.05){
-      return { primary: aboveEntry, secondary: null, primaryWeight: 1, secondaryWeight: 0 };
-    }
-    if(aboveWeight < 0.05){
-      return { primary: belowEntry, secondary: null, primaryWeight: 1, secondaryWeight: 0 };
+    // product's own level), that side isn't automatically the right answer — it was only
+    // chosen via a HUE-LED search within its own level band, which can land on a poor overall
+    // match (e.g. a near-zero-saturation product) when nothing better existed nearby in level.
+    // Rather than forcing a single-product choice here, also try blending IN a modest amount of
+    // the other side — even when the target level coincides with one side's own level, a small
+    // dose of a more-saturated (but level-off) product can correct for a saturation shortfall
+    // without meaningfully dragging the level off target. Compare: on-level side alone, off-level
+    // side alone, and a handful of blend ratios weighted toward the on-level side — whichever
+    // scores best (by the full hue+saturation+lightness distance) wins.
+    if(belowWeight < 0.05 || aboveWeight < 0.05){
+      const onLevelSide = belowWeight < 0.05 ? aboveEntry : belowEntry;
+      const offLevelSide = belowWeight < 0.05 ? belowEntry : aboveEntry;
+      const candidates = [
+        { primary: onLevelSide, secondary: null, primaryWeight: 1, secondaryWeight: 0, hex: onLevelSide.hex, level: onLevelSide.level },
+        { primary: offLevelSide, secondary: null, primaryWeight: 1, secondaryWeight: 0, hex: offLevelSide.hex, level: offLevelSide.level }
+      ];
+      // Blend ratios weighted toward the on-level side (it's correct on depth; the off-level
+      // side is only there to lend saturation), tried at a few strengths.
+      const blendRatios = [[10,1],[10,2],[10,3],[10,5]];
+      for(const [onW, offW] of blendRatios){
+        const total = onW + offW;
+        const blendedHex = blendHex(onLevelSide.hex, offLevelSide.hex, onW, offW);
+        const blendedLevel = (onLevelSide.level*onW + offLevelSide.level*offW) / total;
+        candidates.push({ primary: onLevelSide, secondary: offLevelSide, primaryWeight: onW/total, secondaryWeight: offW/total, hex: blendedHex, level: blendedLevel });
+      }
+      let best = null, bestScore = Infinity;
+      for(const cand of candidates){
+        const score = scoreForBaseSelection({ hex: cand.hex, level: cand.level }, targetHue, targetSat, targetLevel);
+        if(score < bestScore){ bestScore = score; best = cand; }
+      }
+      return { primary: best.primary, secondary: best.secondary, primaryWeight: best.primaryWeight, secondaryWeight: best.secondaryWeight };
     }
     // Compare the straddle's blended saturation against EACH side's own saturation, relative
     // to the goal — if blending lands noticeably further from the goal's saturation than one
@@ -1141,8 +1165,8 @@ function buildOnColorRecipe(paletteKey, targetHue, targetSat, baseLevel, targetL
   // level's residual warmth, same CMY model as before, so the on-screen preview still reflects
   // what the base level itself will do to the finished color.
   const underHex = naturalLevelSwatch[Math.max(1, Math.min(20, Math.round(baseLevel)))];
-  const tintWeight = tintWeightForBase(baseLevel);
-  const resultHex = subtractiveMixHex(underHex, mixedHex, 1, tintWeight);
+  const baseWeight = baseWeightForLevel(baseLevel);
+  const resultHex = subtractiveMixHex(underHex, mixedHex, baseWeight, 1);
   const [mr, mg, mb] = hexToRgbArr(resultHex);
   const { l: resultLightness } = rgbToHsl(mr, mg, mb);
 
@@ -1160,10 +1184,20 @@ function buildOnColorRecipe(paletteKey, targetHue, targetSat, baseLevel, targetL
   };
 }
 
-function tintWeightForBase(level){
-  const t = Math.max(0, Math.min(1, (level - 15) / 3)); // 0 at lv15, 1 at lv18
-  const eased = t * t;
-  return 2.5 + eased * 5.5; // 1:2.5 at lv15 (base shows through as a tinge, not half-strength), 1:8 at lv18
+// Models the underlying base's own residual pigment (melanin) strength as it decays smoothly
+// with level, rather than modeling the tint's coverage power as something that grows with
+// level. Same physical phenomenon, viewed from the base's side: melanin is broken down as the
+// level rises, so the base's relative "weight" in the mix decays in a single, fully smooth
+// exponential curve across the whole 1-18 range — no two-segment kink, no flat clamp below a
+// cutoff. Anchored so baseWeight(10) = 1 (base and tint contribute about equally at level 10)
+// and baseWeight(18) = 0.125 (base contributes 1/8th as much as the tint at level 18) — the
+// same two reference points the old tintWeightForBase used, just expressed as the base's own
+// decaying weight instead of the tint's growing one. subtractiveMixHex is called as
+// (underHex, tintHex, baseWeight, 1) accordingly — base weight first, tint weight fixed at 1.
+const BASE_WEIGHT_DECAY_A = 13.454342644059437;
+const BASE_WEIGHT_DECAY_B = -0.2599301927099795;
+function baseWeightForLevel(level){
+  return BASE_WEIGHT_DECAY_A * Math.exp(BASE_WEIGHT_DECAY_B * level);
 }
 function levelToLightness(level){
   const t = (level - 1) / 17;
@@ -1431,7 +1465,7 @@ function updateGenerateButton(){
   }
 }
 
-const BASE_LEVELS = [18, 17, 16, 15];
+const BASE_LEVELS = [18, 17, 16, 15, 14, 13, 12, 11, 10];
 
 function generateRuler(){
   if(!goalAnalysis) return;
